@@ -104,10 +104,10 @@ class QuestionImgController extends Controller {
 
     public function showQuiz()
     {
-        $numQuestions = 6;
+        $numQuestions = 3;
         $questionImg = QuestionImg::inRandomOrder()->take($numQuestions)->get();
         $arrayPreguntas = ['questions' => $questionImg];
-        return response()->json($arrayPreguntas);
+        //return response()->json($arrayPreguntas);
     }
 
     private function validation($data){

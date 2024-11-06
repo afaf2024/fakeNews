@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\QuestionImg;
+use App\Models\Translation;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -102,27 +103,66 @@ class QuestionImgController extends Controller {
         return response()->json(['message' => 'Deleted successfully']);
     }
 
+    function showQuizLang($lang) {
+        //composer require deeplcom/deepl-php
+        if(!($lang == 'de' || $lang == 'es' || $lang == 'it')) {
+            return $this->showQuiz();
+        }
+        $key = env('DEEPL', '');
+        $translator = new \DeepL\Translator($key);
+        $numQuestions = 5;
+        $questionImg = QuestionImg::inRandomOrder()->take($numQuestions)->get();
+        foreach($questionImg as $i => $qi) {
+            //is it already translated?
+            $translation = Translation::where([['language', $lang], ['idquestionimg', $qi->id]])->first();
+            if($translation == null) {//not translated
+                try {
+                    $response = $translator->translateText($qi->question, null, $lang);
+                    $question = $response->text;
+                    $response = $translator->translateText($qi->realNew, null, $lang);
+                    $realNew = $response->text;
+                    $translation = new Translation();
+                    $translation->idquestionimg = $qi->id;
+                    $translation->language = $lang;
+                    $translation->question = $question;
+                    $translation->realNew = $realNew;
+                    $translation->save();
+                } catch(\Exception $e) {
+                    $question = $qi->question;
+                    $realNew = $qi->realNew;
+                }
+                $qi->question = $question;
+                $qi->realNew = $realNew;
+            } else {//translated
+                $qi->question = $translation->question;
+                $qi->realNew = $translation->realNew;
+            }
+            //set translated version
+            $questionImg[$i] = $qi;
+        }
+        $arrayPreguntas = ['questions' => $questionImg];
+        return response()->json($arrayPreguntas);
+    }
+    
     public function showQuiz()
     {
-        $numQuestions = 3;
+        $numQuestions = 5;
         $questionImg = QuestionImg::inRandomOrder()->take($numQuestions)->get();
         $arrayPreguntas = ['questions' => $questionImg];
-        //return response()->json($arrayPreguntas);
+        return response()->json($arrayPreguntas);
     }
 
     private function validation($data){
-         $validator = Validator::make($data, [
-                'question' => 'required|string',
+        $validator = Validator::make($data, [
+            'question' => 'required|string',
             'correct' => 'required|numeric|between:0,1',
             'realNew' => 'required|string',
             'img' => 'nullable|string|max:255',
-            ]);
-            
-            if($validator->fails()) {
-                return  ['feedback' =>  $validator->getMessageBag()->first()];
-            }else{
-                return false;
-            }
-            
+        ]);
+        if($validator->fails()) {
+            return  ['feedback' =>  $validator->getMessageBag()->first()];
+        } else {
+            return false;
+        }
     }
 }

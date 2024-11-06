@@ -16,5 +16,7 @@ use App\Http\Controllers\QuestionImgController;
 |
 */
 Route::resource('admin/questionimg', QuestionImgController::class)->except('edit','create');
+Route::get('quizimg/{lang}', [QuestionImgController::class,'showQuizLang']);
 Route::get('quizimg', [QuestionImgController::class,'showQuiz']);
 Route::get('admin/videoinfo/{id}', [VideoController::class,'videoInfo']);
+Route::get('video', [VideoController::class,'index']);

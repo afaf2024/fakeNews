@@ -15,7 +15,11 @@ use App\Http\Controllers\QuestionImgController;
 | is assigned the "api" middleware group. Enjoy building your API!
 |
 */
+
 Route::resource('admin/questionimg', QuestionImgController::class)->except('edit','create');
+
+Route::get('news/{lang}', [NewsController::class,'getNews']);
+
 Route::get('quizimg/{lang}', [QuestionImgController::class,'showQuizLang']);
 Route::get('quizimg', [QuestionImgController::class,'showQuiz']);
 Route::get('admin/videoinfo/{id}', [VideoController::class,'videoInfo']);

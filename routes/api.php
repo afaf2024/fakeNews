@@ -4,6 +4,7 @@ use App\Http\Controllers\VideoController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\QuestionImgController;
+use App\Http\Controllers\NewsController;
 
 /*
 |--------------------------------------------------------------------------
@@ -17,9 +18,7 @@ use App\Http\Controllers\QuestionImgController;
 */
 
 Route::resource('admin/questionimg', QuestionImgController::class)->except('edit','create');
-
 Route::get('news/{lang}', [NewsController::class,'getNews']);
-
 Route::get('quizimg/{lang}', [QuestionImgController::class,'showQuizLang']);
 Route::get('quizimg', [QuestionImgController::class,'showQuiz']);
 Route::get('admin/videoinfo/{id}', [VideoController::class,'videoInfo']);

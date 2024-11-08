@@ -13,10 +13,13 @@ class VideoController extends Controller
      * @param int $id The video ID.
      * @return \Illuminate\Http\JsonResponse
      */
-    
     public function videoInfo($id)
     {
         $video = Video::find($id);
         return response()->json($video);
+    }
+    
+    public function index(){
+        return video::orderby('id')->get();
     }
 }
